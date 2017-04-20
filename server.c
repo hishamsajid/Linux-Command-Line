@@ -72,13 +72,13 @@ int main()
 			perror("accept");
 		else do {
 			bzero(buff, sizeof(buff));
-			if ((rval = read(msgsock, buff, 1024)) < 0)
-				perror("reading stream message");
+			if ((rval = read(msgsock, buff, 1024)) < 0){
+				perror("reading stream message");}
 
 
-			if (rval == 0)
+			if (rval == 0) {
 				printf("Ending connection\n");
-
+			}
 
 			else {
 				printf("-->%s\n", buff);
@@ -149,16 +149,18 @@ int main()
                 token = strtok(NULL," ");
 
                 f_val = fork();
+				if(f_val != 0) {
 
-				p_list[p_number].PID = f_val;
-				p_list[p_number].Pname = (char*) malloc(50);
-				strcpy(p_list[p_number].Pname,token);
-        		p_list[p_number].status = (char*) malloc(50);
-                p_list[p_number].status = "active";
-                p_list[p_number].s_time = (float*)clock();
-                p_number++;
+					p_list[p_number].PID = f_val;
+					p_list[p_number].Pname = (char*) malloc(50);
+					strcpy(p_list[p_number].Pname,token);
+	        		p_list[p_number].status = (char*) malloc(50);
+	                p_list[p_number].status = "active";
+	                p_list[p_number].s_time = (float*)clock();
+	                p_number++;
+				}
 
-                    if(f_val == 0){
+                else if(f_val == 0){
 
                         execlp(token,token,NULL);
 
@@ -166,6 +168,27 @@ int main()
 
 
                 }
+			
+				else if(strcmp("list",token)==0) {
+
+				int itr = 0;
+				
+				while(itr<p_number) {
+
+					count = sprintf(buff,"\nPID: %d\n", p_list[itr].PID);
+    				write(STDOUT_FILENO,buff,count);
+    				count = sprintf(buff,"\nName: %s\n", p_list[itr].Pname);
+    				write(STDOUT_FILENO,buff,count);
+    				count = sprintf(buff,"\nStatus: %s\n", p_list[itr].status);
+    				write(STDOUT_FILENO,buff,count);
+
+    				write(STDOUT_FILENO,"\n",sizeof("\n")-1);
+
+    				itr++;				
+					
+					}
+
+				}
 
 
 

@@ -22,6 +22,21 @@ int main(int argc, char *argv[])
 	char buff_s[BUFF_SIZE];
     char buff_r1[BUFF_SIZE];
     char buff_r2[BUFF_SIZE];
+
+	write(1," Hiham Bin Sajid -09383 \n Version 0.0.1 \n All rights reserved \n \n",
+	sizeof(" Hiham Bin Sajid -09383 \n Version 0.0.1 \n All rights reserved \n \n"));
+
+	write(1,"add -> addition \n",sizeof("add -> addition \n"));
+	write(1,"sub -> subtraction \n",sizeof("add -> subtraction \n"));
+	write(1,"mult -> multiplication \n",sizeof("add -> multiplication \n"));
+	write(1,"list -> list all processes \n",
+	sizeof("list -> list all processes \n"));
+	write(1,"	list -r -> list all running processes \n",
+		sizeof("	list -r -> list all running processes \n"));
+	write(1,"kill -> kill process \n",sizeof("kill -> kill process\n"));
+					
+
+
 	/* Create socket */
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0) {
@@ -44,6 +59,7 @@ int main(int argc, char *argv[])
 	}
 	while(1) {
 		//sending data to server
+		write(1,"Enter Command: ",sizeof("Enter Command: "));
 		count = read(0,buff_s,1024);
 		rval = write(sock,buff_s,count);
 
@@ -52,16 +68,18 @@ int main(int argc, char *argv[])
 		}
 
 		if(rval > 0) {
-			count = sprintf(buff_s,"Data sent: %d\n",rval);
-			write(1,buff_s,count);
+		//	count = sprintf(buff_s,"Data sent: %d\n",rval);
+		//	write(1,buff_s,count);
 
 		}
 
 
 		//recieve reply from server
 
-		rval = recv(sock,buff_r1,1024,0);
-		buff_r1[rval-1] = '/0';
+		rval = read(sock,buff_r1,5000);
+
+		//rval = recv(sock,buff_r1,1024,0);
+		buff_r1[rval-1] = '\0';
 
 		if(rval < 0){
 			perror("error recieving: ");
@@ -70,6 +88,7 @@ int main(int argc, char *argv[])
 		if(rval > 0){
 			count = sprintf(buff_r2,"Recieved: %s\n",buff_r1);
 			write(1,buff_r2,count);
+			//fflush(NULL);
 		}
 
 

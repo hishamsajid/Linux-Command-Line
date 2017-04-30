@@ -7,9 +7,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <signal.h>
 
 #define TRUE 1
-#define BUFF_SIZE 1024
+#define BUFF_SIZE 5000
 
 struct process {
 
@@ -36,7 +37,7 @@ int main()
 	char *token;
 	char *ptr;
 	int count;
-	int sum = 0;
+	double sum = 0;
 	int f_val;
 	struct process p_list[20];
 	int p_number;
@@ -81,7 +82,8 @@ int main()
 			}
 
 			else {
-				printf("-->%s\n", buff);
+				//printf("-->%s\n", buff);
+				//fflush(NULL);
 				count = sprintf(buff_2,"Recieved: %s \n",buff);
 				write(1,buff_2,count);
 
@@ -91,22 +93,25 @@ int main()
 				token = strtok(buff, " ");
 
 				if(strcmp("add",token)==0) {
-
+				write(1,"An addition function\n",sizeof("An addition function\n"));
+				
+				
 				while(token!=NULL){
-
-				sum=sum+strtod(token,&ptr);
+				double x = strtod(token,&ptr);
+				sum=sum+x;
 				token = strtok(NULL," ");
 
 				}
 
             //writing back to client
 
-                count = sprintf(buff,"%d",sum);
+                count = sprintf(buff,"%lf",sum);
                 write(1,buff,count);
                 write(msgsock,buff,count);
+				//fflush(msgsock);
 
 
-			}
+                }
                 else if(strcmp("sub",token)==0) {
 
                 sum= atof(strtok(NULL," "));
@@ -118,7 +123,7 @@ int main()
 
                     }
 
-                count = sprintf(buff,"%d",sum);
+                count = sprintf(buff,"%lf",sum);
                 write(1,buff,count);
                 write(msgsock,buff,count);
 
@@ -127,23 +132,38 @@ int main()
 
 
                else if(strcmp("mult",token)==0) {
-
-                sum= strtod(strtok(NULL," "),&ptr);
+            	
+				
+			    sum = 1;
+				token = strtok(NULL," ");
 
                 while(token!=NULL){
+                    
+                    sum = sum*strtod(token,&ptr);
+					token = strtok(NULL," ");
+					}
 
-                    sum=sum*strtod(strtok(NULL," "),&ptr);
-
-                    }
-
-                count = sprintf(buff,"%d",sum);
+                count = sprintf(buff,"%lf",sum);
                 write(1,buff,count);
                 write(msgsock,buff,count);
 
 
                 }
 
-                else if(strcmp("exec",token)==0) {
+				else if(strcmp("ls",token)==0){
+					write(msgsock,"add -> addition \n",sizeof("add -> addition \n"));
+					write(msgsock,"sub -> subtraction \n",sizeof("add -> subtraction \n"));
+					write(msgsock,"mult -> multiplication \n",sizeof("add -> multiplication \n"));
+					write(msgsock,"list -> list all processes",sizeof("add -> processes"));
+					write(msgsock,"	list -r -> list all running processes",
+					sizeof("	list -r -> list all running processes"));
+					write(msgsock,"kill -> kill process",sizeof("kill -> kill process"));
+					
+
+
+				}
+
+                else if(strcmp("run",token)==0) {
 
 
                 token = strtok(NULL," ");
@@ -166,36 +186,115 @@ int main()
 
                     }
 
+				if(f_val != 0) {
 
-                }
-			
-				else if(strcmp("list",token)==0) {
-
-				int itr = 0;
-				
-				while(itr<p_number) {
-
-					count = sprintf(buff,"\nPID: %d\n", p_list[itr].PID);
-    				write(STDOUT_FILENO,buff,count);
-    				count = sprintf(buff,"\nName: %s\n", p_list[itr].Pname);
-    				write(STDOUT_FILENO,buff,count);
-    				count = sprintf(buff,"\nStatus: %s\n", p_list[itr].status);
-    				write(STDOUT_FILENO,buff,count);
-
-    				write(STDOUT_FILENO,"\n",sizeof("\n")-1);
-
-    				itr++;				
-					
-					}
+					write(msgsock,"Successfully executed", sizeof("Successfully executed"));
 
 				}
 
 
+                }
 
+				else if(strcmp("list",token)==0) {
+
+				int itr = 0;
+
+				while(itr<p_number) {
+
+					count = sprintf(buff,"\nPID: %d\n", p_list[itr].PID);
+    				write(msgsock,buff,count);
+    				count = sprintf(buff,"\nName: %s\n", p_list[itr].Pname);
+    				write(msgsock,buff,count);
+    				count = sprintf(buff,"\nStatus: %s\n", p_list[itr].status);
+    				write(msgsock,buff,count);
+
+    				write(msgsock,"\n",sizeof("\n")-1);
+
+					write(msgsock,"Processes listed",sizeof("Processes listed"));
+
+    				itr++;
+
+					}
+
+				}
+
+				else if(strcasecmp("kill",token) == 0) {
+
+                token = strtok(NULL," ");
+
+                    if(strcmp(token,"-id")==0) {
+
+                    token = strtok(NULL," ");
+                    int pid = atoi(token);
+                    count = sprintf(buff,"%d",pid);
+                    write(1,buff,count);
+
+
+                    int itr = 0;
+
+                    while(itr<p_number) {
+                       
+                        if(pid == p_list[itr].PID) {
+
+                            kill(pid,SIGTERM);
+                            p_list[itr].status = "deactivated";
+
+                            write(msgsock,"\nproccess killed\n", sizeof("\nproccess killed\n"));
+                           
+							break;
+                            }
+                    itr++;
+
+                        }
+
+                    }
+
+                 if(strcmp(token,"-n") == 0){
+
+                token = strtok(NULL," ");
+                int itr =0;
+
+                while(itr<p_number){
+
+                    if(strcmp(token,p_list[itr].Pname)==0){
+
+                        int pid = p_list[itr].PID;
+                        p_list[itr].status = "deactivated";
+
+                        kill(pid,SIGTERM);
+
+                        write(msgsock,"\nproccess killed\n", sizeof("\nproccess killed\n"));
+
+                        break;
+                        }
+                    itr++;
+                	}
+                }
+
+
+                 if(strcmp(token,"-all")==0) {
+
+                int itr = 0;
+
+                while(itr<p_number) {
+
+                    int pid = p_list[itr].PID;
+                    p_list[itr].status = "deactivated";
+                    kill(pid,SIGTERM);
+                    itr++;
+                    }
+                write(msgsock,"\nAll proccesses killed\n", sizeof("All proccesses killed"));
+                }
+
+            }
+
+
+//----------------------------
 
 			}
 		} while (rval != 0);
 		close(msgsock);
+		fflush(NULL);
 	} while (TRUE);
 
 }

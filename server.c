@@ -22,6 +22,7 @@ struct process {
 
 };
 
+int p_number;
 
 
 int main()
@@ -32,6 +33,8 @@ int main()
 	char buff[BUFF_SIZE];
 	char buff_2[BUFF_SIZE];
 	int rval;
+	char *tkptr;
+	int accept_fork;
 
 
 	char *token;
@@ -40,7 +43,7 @@ int main()
 	double sum = 0;
 	int f_val;
 	struct process p_list[20];
-	int p_number;
+	
 
 	/* Create socket */
 	sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -69,8 +72,14 @@ int main()
 	listen(sock, 5);
 	do {
 		msgsock = accept(sock, 0, 0);
+		
+		accept_fork = fork();
+
+		if(accept_fork == 0){
+
 		if (msgsock == -1)
 			perror("accept");
+		
 		else do {
 			bzero(buff, sizeof(buff));
 			if ((rval = read(msgsock, buff, 1024)) < 0){
@@ -90,7 +99,7 @@ int main()
 			//enter command line server code here
 
 				buff[rval-1] = '\0';
-				token = strtok(buff, " ");
+				token = strtok_r(buff, " ",&tkptr);
 
 				if(strcmp("add",token)==0) {
 				write(1,"An addition function\n",sizeof("An addition function\n"));
@@ -99,7 +108,7 @@ int main()
 				while(token!=NULL){
 				double x = strtod(token,&ptr);
 				sum=sum+x;
-				token = strtok(NULL," ");
+				token = strtok_r(NULL," ",&tkptr);
 
 				}
 
@@ -114,12 +123,12 @@ int main()
                 }
                 else if(strcmp("sub",token)==0) {
 
-                sum= atof(strtok(NULL," "));
+                sum= atof(strtok_r(NULL," ",&tkptr));
 
                 while(token!=NULL){
 
                     sum=sum-strtod(token,&ptr);
-                    token=strtok(NULL," ");
+                    token=strtok_r(NULL," ",&tkptr);
 
                     }
 
@@ -135,12 +144,12 @@ int main()
             	
 				
 			    sum = 1;
-				token = strtok(NULL," ");
+				token = strtok_r(NULL," ",&tkptr);
 
                 while(token!=NULL){
                     
                     sum = sum*strtod(token,&ptr);
-					token = strtok(NULL," ");
+					token = strtok_r(NULL," ",&tkptr);
 					}
 
                 count = sprintf(buff,"%lf",sum);
@@ -155,7 +164,7 @@ int main()
                 else if(strcmp("run",token)==0) {
 
 
-                token = strtok(NULL," ");
+                token = strtok_r(NULL," ",&tkptr);
 
                 f_val = fork();
 				if(f_val != 0) {
@@ -209,11 +218,11 @@ int main()
 
 				else if(strcasecmp("kill",token) == 0) {
 
-                token = strtok(NULL," ");
+                token = strtok_r(NULL," ",&tkptr);
 
                     if(strcmp(token,"-id")==0) {
 
-                    token = strtok(NULL," ");
+                    token = strtok_r(NULL," ",&tkptr);
                     int pid = atoi(token);
                     count = sprintf(buff,"%d",pid);
                     write(1,buff,count);
@@ -240,7 +249,7 @@ int main()
 
                  if(strcmp(token,"-n") == 0){
 
-                token = strtok(NULL," ");
+                token = strtok_r(NULL," ",&tkptr);
                 int itr =0;
 
                 while(itr<p_number){
@@ -298,6 +307,7 @@ int main()
 		} while (rval != 0);
 		close(msgsock);
 		fflush(NULL);
+		}
 	} while (TRUE);
 
 }

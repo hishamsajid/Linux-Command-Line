@@ -150,18 +150,7 @@ int main()
 
                 }
 
-				else if(strcmp("ls",token)==0){
-					write(msgsock,"add -> addition \n",sizeof("add -> addition \n"));
-					write(msgsock,"sub -> subtraction \n",sizeof("add -> subtraction \n"));
-					write(msgsock,"mult -> multiplication \n",sizeof("add -> multiplication \n"));
-					write(msgsock,"list -> list all processes",sizeof("add -> processes"));
-					write(msgsock,"	list -r -> list all running processes",
-					sizeof("	list -r -> list all running processes"));
-					write(msgsock,"kill -> kill process",sizeof("kill -> kill process"));
-					
-
-
-				}
+				
 
                 else if(strcmp("run",token)==0) {
 
@@ -283,10 +272,24 @@ int main()
                     kill(pid,SIGTERM);
                     itr++;
                     }
-                write(msgsock,"\nAll proccesses killed\n", sizeof("All proccesses killed"));
+                write(msgsock,"\nAll proccesses killed\n", sizeof("\nAll proccesses killed\n"));
                 }
 
+				else {
+					
+					write(msgsock,"\n Incorrect command, try again \n",
+					sizeof("\n Incorrect command, try again \n"));
+
+				}
+
+
             }
+
+			else {
+				write(msgsock,"\n Incorrect command, try again \n",
+				sizeof("\n Incorrect command, try again \n"));
+
+			}
 
 
 //----------------------------

@@ -6,9 +6,23 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <pthread.h>
 
 #define DATA "Half a league, half a league . . ."
 #define BUFF_SIZE 1024
+
+void *read_thread(void *ptr){
+
+
+
+}
+
+void *write_thread(void *ptr){
+
+
+
+}
+
 
 
 int main(int argc, char *argv[])
@@ -16,12 +30,16 @@ int main(int argc, char *argv[])
 	int sock;
 	int count;
 	int rval;
+//	pthread_t thread1;
+//	pthread_t thread2;
 
 	struct sockaddr_in server;
 	struct hostent *hp;
 	char buff_s[BUFF_SIZE];
     char buff_r1[BUFF_SIZE];
     char buff_r2[BUFF_SIZE];
+//	write(1,"Enter IP & Port no: ",sizeof("Enter IP & Port no: "));
+//	read(0,)
 
 	write(1," Hiham Bin Sajid -09383 \n Version 0.0.1 \n All rights reserved \n \n",
 	sizeof(" Hiham Bin Sajid -09383 \n Version 0.0.1 \n All rights reserved \n \n"));
@@ -29,12 +47,15 @@ int main(int argc, char *argv[])
 	write(1,"add -> addition \n",sizeof("add -> addition \n"));
 	write(1,"sub -> subtraction \n",sizeof("add -> subtraction \n"));
 	write(1,"mult -> multiplication \n",sizeof("add -> multiplication \n"));
-	write(1,"list -> list all processes \n",
-	sizeof("list -> list all processes \n"));
+	write(1,"list -> list all processes \n \n",
+	sizeof("list -> list all processes \n \n"));
 	write(1,"	list -r -> list all running processes \n",
 		sizeof("	list -r -> list all running processes \n"));
-	write(1,"kill -> kill process \n",sizeof("kill -> kill process\n"));
-					
+	write(1,"kill variations\n \n",sizeof("kill variations\n \n"));
+	write(1,"	kill -id\n",sizeof("	kill -id\n"));
+	write(1,"	kill -n\n",sizeof("	kill -n\n"));
+	write(1,"	kill -all\n",sizeof("	kill -all\n"));
+				
 
 
 	/* Create socket */
@@ -68,8 +89,8 @@ int main(int argc, char *argv[])
 		}
 
 		if(rval > 0) {
-		//	count = sprintf(buff_s,"Data sent: %d\n",rval);
-		//	write(1,buff_s,count);
+			count = sprintf(buff_s,"Data sent: %d\n",rval);
+			write(1,buff_s,count);
 
 		}
 
@@ -78,7 +99,7 @@ int main(int argc, char *argv[])
 
 		rval = read(sock,buff_r1,5000);
 
-		//rval = recv(sock,buff_r1,1024,0);
+	
 		buff_r1[rval-1] = '\0';
 
 		if(rval < 0){

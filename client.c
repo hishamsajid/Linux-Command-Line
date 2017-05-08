@@ -14,7 +14,7 @@
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void *read_thread(void *ptr){
-
+//reads from user space, writes to socket
 char buff_s[BUFF_SIZE];
 int rval = 0;
 int count = 0;
@@ -48,7 +48,7 @@ while(1){
 }
 
 void *write_thread(void *ptr){
-
+//reads from socket, writes into user space
 
 
 int count = 0;
@@ -71,9 +71,25 @@ while(1) {
 	}
 
 	if(rval > 0){
+
+		if(strcmp(buff_r1,"kill -all")==0){
+
+			write(sock,buff_r1,rval);
+		}
+
+		if(strcmp(buff_r1,"connection terminated") == 0){
+			write(1,"connection terminated",sizeof("connection terminated"));
+			//kill(getpid(),SIGKILL)
+			exit(0);
+			//close(sock);
+			break;
+		}
+		else {
 	
 		count = sprintf(buff_r2,"Recieved: %s\n",buff_r1);
 		write(1,buff_r2,count);
+
+		}
 	
 		}
 	
